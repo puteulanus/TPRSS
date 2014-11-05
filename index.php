@@ -3,7 +3,7 @@
 $db_prefix = 'tr_';
 // 设定后端地址与图片CDN地址
 $api_url = 'http://twitrss.me/fcgi/twitter_user_to_rss.pl';
-$cdn_api_url = 'http://tprss.puteulanus.com/index.php';
+$cdn_api_url = 'http://rss-cdn-def0d.coding.io/index.php';
 // 定义获取图片真实地址的函数
 function get_pic_link($pic_url){
     if (preg_match('/(^http:\/\/)|(^https:\/\/)/',$pic_url) != 1){
@@ -51,13 +51,14 @@ if ($pic){
 }
 // 从后端获取RSS信息
 $rss_page = file_get_contents($api_url.'?user='.$user);
+// 判断是否使用CDN
+if ($_GET['cdn'] != 'on'){
+    $cdn_api_url = 'http://tprss.puteulanus.com/index.php'
+}
 // 替换图片地址为CDN地址
 preg_match_all('/<description><!\[CDATA\[.*(pic.twitter.com\/\w+).*\]\]><\/description>/',$rss_page,$pic_urls);
 $pic_urls = $pic_urls[1];
 $pic_urls = check_database($user,$pic_urls);
-//foreach($pic_urls as $pic_url){
-//    $rss_page = preg_replace('/(<description><!\[CDATA\[.*)'.str_replace('/','\/',$pic_url).'(.*\]\]><\/description>)/','$1<img src="'.$cdn_api_url.'?pic='.get_pic_link($pic_url).'"/>$2',$rss_page);
-//}
 foreach ($pic_urls as $pic_url => $real_url) {
     $rss_page = preg_replace('/(<description><!\[CDATA\[.*)'.str_replace('/','\/',addslashes($pic_url)).'(.*\]\]><\/description>)/','$1<img src="'.$cdn_api_url.'?pic='.$real_url.'"/>$2',$rss_page);
 }
