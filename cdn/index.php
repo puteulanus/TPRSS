@@ -4,7 +4,7 @@ $api_url = 'https://tpress-xiguaiyong.rhcloud.com/index.php';
 // 获取图片地址
 $pic = $_GET['pic'];
 if ($pic){
-	preg_match('/\/(\w+\.\w{3})(:large)?$/', $pic,$pic_file_name);
+	preg_match('/\/([^\.\/]+\.\w{3})(:large)?$/', $pic,$pic_file_name);
 	$pic_file_name = $pic_file_name[1];
 	preg_match('/\.(\w{3})$/', $pic_file_name,$file_type);
 	$file_type = $file_type[1];
@@ -19,7 +19,7 @@ if ($pic){
     	exit;
 	}else{
     	$pic_file = file_get_contents($api_url.'?pic='.$pic);
-    	file_put_contents('pic-1/'.$pic_file_name.'-'.strlen($pic_file).$file_type, $pic_file);
+    	file_put_contents('pic-1/'.$pic_file_name.'-'.strlen($pic_file).'.'.$file_type, $pic_file);
     	Header("Content-type: image/".$file_type);
     	echo $pic_file;
     	exit;
@@ -30,8 +30,8 @@ if ($_GET['check'] == 'on'){
 	$pic_dir = opendir("pic-1");
 	$pic_dir_size = 0;
 	while (($pic_file_name = readdir($pic_dir)) !== false){
-		if ($pic_file_name != '.' or $pic_file_name != '..'){
-			$pic_size = preg_match('/-(\d+)\.\w{3}$/',$pic_file_name,$pic_size);
+		if ($pic_file_name != '.' and $pic_file_name != '..' and $pic_file_name != 'keepdir.md' ){
+			preg_match('/-(\d+)\.\w{3}$/',$pic_file_name,$pic_size);
 			$pic_size = (int)$pic_size[1];
 			$pic_dir_size += $pic_size;
 		}
