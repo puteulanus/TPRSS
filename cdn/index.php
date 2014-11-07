@@ -4,23 +4,26 @@ $api_url = 'https://tpress-xiguaiyong.rhcloud.com/index.php';
 // 获取图片地址
 $pic = $_GET['pic'];
 if ($pic){
-	preg_match('\/(\w+\.\w{3})(:large)?$', $pic,$pic_file_name);
+	preg_match('/\/(\w+\.\w{3})(:large)?$/', $pic,$pic_file_name);
 	$pic_file_name = $pic_file_name[1];
 	preg_match('/\.(\w{3})$/', $pic_file_name,$file_type);
 	$file_type = $file_type[1];
-	if(is_file('pic-1/'.$pic_file_name)){
+	$pic_file_name = md5($pic_file_name);
+	if($cache_file = glob('pic-1/'.$pic_file_name.'*')){
 		Header("Content-type: image/".$file_type);
-    	echo file_get_contents('pic-1/'.$pic_file_name);
-	}elseif (is_file('pic-2/'.$pic_file_name)) {
+    	echo file_get_contents($cache_file[0]);
+    	exit;
+	}elseif ($cache_file = glob('pic-2/'.$pic_file_name.'*')){
 		Header("Content-type: image/".$file_type);
-    	echo file_get_contents('pic-2/'.$pic_file_name);
+    	echo file_get_contents($cache_file[0]);
+    	exit;
 	}else{
     	$pic_file = file_get_contents($api_url.'?pic='.$pic);
-    	file_put_contents('pic-1/'.$pic_file_name, $pic_file);
+    	file_put_contents('pic-1/'.$pic_file_name.'-'.strlen($pic_file).$file_type, $pic_file);
     	Header("Content-type: image/".$file_type);
     	echo $pic_file;
+    	exit;
 	}
-    exit;
 }
 // 检查文件夹大小
 if ($_GET['check'] == 'on'){
@@ -45,7 +48,6 @@ if ($_GET['check'] == 'on'){
 		rmdir('pic-2');
 		rename('pic-1', 'pic-2');
 		mkdir('pic-1');
-	}
 	}
 	echo 'OK';
 	exit;
