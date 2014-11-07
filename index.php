@@ -54,6 +54,10 @@ $rss_page = file_get_contents($api_url.'?user='.$user);
 // 判断是否使用CDN
 if ($_GET['cdn'] != 'on'){
     $cdn_api_url = 'http://tprss.puteulanus.com/index.php';
+}else{
+    if (file_get_contents($cdn_api_url.'?check=on') != 'OK'){
+        $cdn_api_url = 'http://tprss.puteulanus.com/index.php';
+    }
 }
 // 替换图片地址为CDN地址
 preg_match_all('/<description><!\[CDATA\[.*(pic.twitter.com\/\w+).*\]\]><\/description>/',$rss_page,$pic_urls);
