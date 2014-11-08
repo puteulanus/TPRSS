@@ -55,8 +55,8 @@ if ($_GET['check'] == 'on'){
 // 获取用户名
 $user = $_GET['user'];
 if (!$user){
-	header("Content-Type: text/html; charset=utf-8");
-	echo '请输入要订阅的推特用户名！';
+	header("HTTP/1.1 301 Moved Permanently");
+    header("Location: http://tprss.puteulanus.com/");
 	exit;
 }
 // 输出RSS信息
