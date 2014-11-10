@@ -30,30 +30,29 @@ function check_database($twitter_urls_array){
             $new_user_data += array($twitter_url => get_pic_link($twitter_url));
         }
     }
-    
     $stmt_write -> bind_param("sss",$user,json_encode($new_user_data),json_encode($new_user_data));
     $stmt_write -> execute();
     $stmt_write -> close();
     $db_link -> close();
     return $new_user_data;
-//    $mysql_link = mysql_connect({"{$db_host}:${db_port}",$db_user,$db_passwd);
-//    if (!$mysql_link){die('Could not connect:'.mysql_error());}
-//    mysql_select_db($db_name, $mysql_link);
-//    $json_result = mysql_fetch_array(mysql_query("SELECT urls FROM ".$db_prefix."cache where user='".addslashes($user)."'"));
-    // 更新数据库
-//    $json_result = $json_result['urls'];
-//    $array_result = json_decode($json_result,true);
-//    $new_user_data = array();
-//    foreach ($twitter_urls_array as $twitter_url) {
-//        if ($array_result[$twitter_url]){
-//            $new_user_data += array($twitter_url => $array_result[$twitter_url]);
-//        }else{
-//            $new_user_data += array($twitter_url => get_pic_link($twitter_url));
-//        }
-//    }
-//    mysql_query("INSERT INTO ".$db_prefix."cache (user,urls) VALUES ('".addslashes($user)."','".addslashes(json_encode($new_user_data))."') ON DUPLICATE KEY UPDATE urls = '".addslashes(json_encode($new_user_data))."'");
-//    mysql_close($mysql_link);
-//    return $new_user_data;
+}
+// 定义检查用户存在函数
+function check_user($user){
+    global $user;
+    $curl = curl_init();  
+    curl_setopt($curl,CURLOPT_URL,"https://twitter.com/{$user}");// 获取内容url  
+    curl_setopt($curl,CURLOPT_HEADER,1);// 获取http头信息  
+    curl_setopt($curl,CURLOPT_NOBODY,1);// 不返回html的body信息  
+    curl_setopt($curl,CURLOPT_RETURNTRANSFER,1);// 返回数据流，不直接输出  
+    curl_setopt($curl,CURLOPT_TIMEOUT,10); // 超时时长，单位秒  
+    curl_exec($curl);  
+    if (curl_getinfo($curl,CURLINFO_HTTP_CODE) == '404'){
+        $user_status = false;
+    }else{
+        $user_status = true;
+    }
+    curl_close($curl);  
+    return  $user_status;  
 }
 // 获取用户名或图片地址
 $user = $_GET['user'];
@@ -65,6 +64,12 @@ if ($pic_url){
 }elseif (!$user){
     header("Content-Type: text/html; charset=utf-8");
     echo '请输入要订阅的推特用户名！';
+    exit;
+}
+// 检查是否存在用户
+if (!check_user($user)){
+    header("Content-Type: text/html; charset=utf-8");
+    echo '用户不存在，请核对后输入正确的用户名';
     exit;
 }
 // 从后端获取RSS信息
