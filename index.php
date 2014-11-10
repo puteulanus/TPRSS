@@ -15,11 +15,12 @@ function check_database($twitter_urls_array){
     global $user;
     $db_link = new mysqli(db_host,db_user,db_passwd,db_name,db_port);
     $stmt_read = $db_link -> prepare("SELECT urls FROM ".db_prefix."cache WHERE user=?");
+    $stmt_write = $db_link -> prepare("INSERT INTO ".db_prefix."cache (user,urls) VALUES (?,?) ON DUPLICATE KEY UPDATE urls=?");
     $stmt_read -> bind_param("s",$user);
     $stmt_read -> execute();
     $stmt_read -> bind_result($json_result);
     $stmt_read -> fetch();
-    $array_result = json_encode($json_result,true);
+    $array_result = json_decode($json_result,true);
     $new_user_data = array();
     foreach ($twitter_urls_array as $twitter_url) {
         if ($array_result[$twitter_url]){
@@ -28,7 +29,7 @@ function check_database($twitter_urls_array){
             $new_user_data += array($twitter_url => get_pic_link($twitter_url));
         }
     }
-    $stmt_write = $db_link -> prepare("INSERT INTO ".db_prefix."cache (user,urls) VALUES (?,?) ON DUPLICATE KEY UPDATE urls=?");
+    
     $stmt_write -> bind_param("sss",$user,json_encode($new_user_data),json_encode($new_user_data));
     $stmt_write -> execute();
     $db_link -> close();
