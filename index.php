@@ -13,6 +13,10 @@ function get_pic_link($twitter_url){
 // 定义数据库查询更新函数
 function check_database($twitter_urls_array){
     global $user;
+    // 无图直接返回
+    if (count($twitter_urls_array) == 0){
+        return array();
+    }
     $db_link = new mysqli(db_host,db_user,db_passwd,db_name,db_port);
     $stmt_read = $db_link -> prepare("SELECT urls FROM ".db_prefix."cache WHERE user=?");
     $stmt_write = $db_link -> prepare("INSERT INTO ".db_prefix."cache (user,urls) VALUES (?,?) ON DUPLICATE KEY UPDATE urls=?");
