@@ -65,10 +65,9 @@ if ($pic_url){
     Header("Content-type: image/jpg");
     echo file_get_contents($pic_url);
     exit;
-}elseif (!$user){
-    header("Content-Type: text/html; charset=utf-8");
-    echo '请输入要订阅的推特用户名！';
-    exit;
+}elseif (!$user){// 随机推荐订阅
+    $rand_user_list = array('nisopict_bot_kr','nisopict_bot_k2','kneehigh_bot','akogare_ryoiki','exposed_cranium');
+    $user = $rand_user_list[rand(0,count($rand_user_list) - 1)]
 }
 // 检查是否存在用户
 if (!check_user($user)){
