@@ -20,6 +20,7 @@ function check_database($twitter_urls_array){
     $stmt_read -> execute();
     $stmt_read -> bind_result($json_result);
     $stmt_read -> fetch();
+    $stmt_read -> close();
     $array_result = json_decode($json_result,true);
     $new_user_data = array();
     foreach ($twitter_urls_array as $twitter_url) {
@@ -32,6 +33,7 @@ function check_database($twitter_urls_array){
     
     $stmt_write -> bind_param("sss",$user,json_encode($new_user_data),json_encode($new_user_data));
     $stmt_write -> execute();
+    $stmt_write -> close();
     $db_link -> close();
     return $new_user_data;
 //    $mysql_link = mysql_connect({"{$db_host}:${db_port}",$db_user,$db_passwd);
